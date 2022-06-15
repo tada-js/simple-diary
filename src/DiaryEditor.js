@@ -1,44 +1,79 @@
-import { useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useRef, useState } from "react";
+import { DiaryDispatchContext } from "./App";
 
 const DiaryEditor = () => {
-  const authorInput = useRef();
-  const contentInput = useRef();
-  const [state, setState] = useState({
+  const { onCreate } = useContext(DiaryDispatchContext);
+  useEffect(() => {
+    console.log("DiaryEditor 렌더");
+  });
+
+  const [diary, setDiary] = useState({
     author: "",
     content: "",
     emotion: 1,
   });
 
-  const handleChangeState = (e) => {
-    setState({
-      ...state,
+  const handleChangeDiary = (e) => {
+    setDiary({
+      ...diary,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = () => {
-    if (state.author.length < 1) {
-      authorInput.current.focus();
-      return; // 더 이상 진행이 안되로록 리턴
-    }
-    if (state.content.length < 5) {
-      contentInput.current.focus();
+  const handleAddButtonClick = () => {
+    alert("일기가 추가되었어요!");
+    return;
+    console.log("추가될 일기 : ", diary);
+
+    if (diary.author.length < 1) {
+      authorRef.current.focus();
       return;
     }
-    alert("저장 성공");
+
+    if (diary.content.length < 1) {
+      contentRef.current.focus();
+      return;
+    }
+
+    onCreate(diary.author, diary.content, diary.emotion);
+    alert("일기가 성공적으로 추가되었습니다");
+
+    setDiary({
+      author: "",
+      content: "",
+      emotion: 1,
+    });
   };
 
+  const authorRef = useRef(null);
+  const contentRef = useRef(null);
+
   return (
-    <div className="DiaryEditor">
+    <div className="DiaryEditor_container">
       <h2>오늘의 일기</h2>
       <div>
-        <input ref={authorInput} name="author" value={state.author} onChange={handleChangeState} />
+        <input
+          ref={authorRef}
+          name="author"
+          placeholder="작성자"
+          type="text"
+          value={diary.author}
+          onChange={handleChangeDiary}
+        />
       </div>
       <div>
-        <textarea ref={contentInput} name="content" value={state.content} onChange={handleChangeState} />
+        <textarea
+          ref={contentRef}
+          name="content"
+          placeholder="일기"
+          type="text"
+          value={diary.content}
+          onChange={handleChangeDiary}
+        />
       </div>
       <div>
-        <select name="emotion" value={state.emotion} onChange={handleChangeState}>
+        <span>오늘의 감정점수 : </span>
+        <select name="emotion" value={diary.emotion} onChange={handleChangeDiary}>
           <option value={1}>1</option>
           <option value={2}>2</option>
           <option value={3}>3</option>
@@ -47,9 +82,10 @@ const DiaryEditor = () => {
         </select>
       </div>
       <div>
-        <button onClick={handleSubmit}>일기 저장하기</button>
+        <button onClick={handleAddButtonClick}>일기 저장하기</button>
       </div>
     </div>
   );
 };
-export default DiaryEditor;
+
+export default memo(DiaryEditor);
